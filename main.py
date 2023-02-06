@@ -33,12 +33,12 @@ beta_checkfreedomnetwork=True
 async def echo(room, message):
     match = botlib.MessageMatch(room, message, bot, PREFIX)
     message = str(message).split(":", 2)
-    server = message[1].lstrip().rstrip()
-    username=message[0].lstrip().rstrip()
-    message=message[2].lstrip().rstrip()
+    server = message[1].strip()
+    username=message[0].strip()
+    message=message[2].strip()
 
 ## загрузка всякой херни по ссылке
-    if message.startswith("https://youtu.be/") or message.startswith("https://www.youtube.com/watch?v=") or message.startswith("https://youtube.com/") andyoutubedownload=True:
+    if message.startswith("https://youtu.be/") or message.startswith("https://www.youtube.com/watch?v=") or message.startswith("https://youtube.com/") and youtubedownload==True:
         try:
             os.remove("download.mp4")
         except:
@@ -59,7 +59,7 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, f"Я не могу скачать видео. У тебя дерьмовая ссылка <a href='https://matrix.to/#/{username}:{server}'>{username}</a> !")
 
     #Временно, надо на async
-    if message.endswith(".mp4") and message.startswith("https") and beta_mp4download=True:
+    if message.endswith(".mp4") and message.startswith("https") and beta_mp4download==True:
         try:
             print("Beta download mp4")
             data=requests.get(message)
@@ -90,7 +90,7 @@ def commandprocessor(command):
         response = "На сервер можно зайти с версии 1.11.2 \nip адрес: advancedsoft.mooo.com"
     elif command == "map":
         response = "[Карта](http://advancedsoft.mooo.com:25552)"
-    elif command == "fdi" and beta_checkfreedomnetwork=True:
+    elif command == "fdi" and beta_checkfreedomnetwork==True:
         response = "Микротест компонентов сервера в разработке"
         # 1 - проверить вебкарту ассинхронно, понять что основной серв работает
         # 2 - либой проверить что работает защитный прокси
