@@ -23,8 +23,9 @@ commands = ["ip", "map", "fdi", "help", "room"]
 phrasesworkingonit = ["Ненавижу свою ебаную работу, ща погоди", "Ща сделаю, сек", "Ааа бля ща ща сделаю", "Делаю уже, погоди", "Погоди, ща все сделаем, только поем оперативки"]
 phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
 
-
-
+# Настройки
+beta_mp4download=True
+youtubedownload=True
 
 @bot.listener.on_message_event
 async def echo(room, message):
@@ -34,8 +35,8 @@ async def echo(room, message):
     username=message[0].lstrip().rstrip()
     message=message[2].lstrip().rstrip()
 
-
-    if message.startswith("https://youtu.be/") or message.startswith("https://www.youtube.com/watch?v="):
+## загрузка всякой херни по ссылке
+    if message.startswith("https://youtu.be/") or message.startswith("https://www.youtube.com/watch?v=") or message.startswith("https://youtube.com/") andyoutubedownload=True:
         try:
             os.remove("download.mp4")
         except:
@@ -54,6 +55,23 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, f"Название: **{video.title}**")
         except:
             await bot.api.send_markdown_message(room.room_id, f"Я не могу скачать видео. У тебя дерьмовая ссылка <a href='https://matrix.to/#/{username}:{server}'>{username}</a> !")
+
+    #Временно, надо на async
+    if message.endswith(".mp4") and message.startswith("https") and beta_mp4download=True:
+        try:
+            print("Beta download mp4")
+            data=requests.get(message)
+            open('download.mp4', 'wb').write(data.content)
+            data=0
+            await bot.api.send_video_message(room.room_id, "download.mp4")
+        except:
+            await bot.api.send_markdown_message(room.room_id, f"Ошибка скачивания (betamode)")
+
+
+
+
+
+
     if match.is_not_from_this_bot() and match.prefix():
         for i in commands:
             if match.command(i):
@@ -62,6 +80,7 @@ async def echo(room, message):
                     await bot.api.send_markdown_message(room.room_id, "странная ошибка, почините меня пжлста")
                 else:
                     await bot.api.send_markdown_message(room.room_id, response)
+
 
 
 def commandprocessor(command):
