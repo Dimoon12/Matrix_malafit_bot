@@ -23,9 +23,11 @@ commands = ["ip", "map", "fdi", "help", "room"]
 phrasesworkingonit = ["Ненавижу свою ебаную работу, ща погоди", "Ща сделаю, сек", "Ааа бля ща ща сделаю", "Делаю уже, погоди", "Погоди, ща все сделаем, только поем оперативки"]
 phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
 
-# Настройки
-beta_mp4download=True
+# Stable settings
 youtubedownload=True
+# Beta and alpha settings
+beta_mp4download=True
+beta_checkfreedomnetwork=True
 
 @bot.listener.on_message_event
 async def echo(room, message):
@@ -88,7 +90,7 @@ def commandprocessor(command):
         response = "На сервер можно зайти с версии 1.11.2 \nip адрес: advancedsoft.mooo.com"
     elif command == "map":
         response = "[Карта](http://advancedsoft.mooo.com:25552)"
-    elif command == "fdi":
+    elif command == "fdi" and beta_checkfreedomnetwork=True:
         response = "Микротест компонентов сервера в разработке"
         # 1 - проверить вебкарту ассинхронно, понять что основной серв работает
         # 2 - либой проверить что работает защитный прокси
