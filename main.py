@@ -28,6 +28,7 @@ youtubedownload=True
 # Beta and alpha settings
 beta_mp4download=True
 beta_checkfreedomnetwork=True
+beta_fallbackferrum=True
 
 @bot.listener.on_message_event
 async def echo(room, message):
@@ -70,10 +71,6 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, f"Ошибка скачивания (betamode)")
 
 
-
-
-
-
     if match.is_not_from_this_bot() and match.prefix():
         for i in commands:
             if match.command(i):
@@ -83,8 +80,12 @@ async def echo(room, message):
                 else:
                     await bot.api.send_markdown_message(room.room_id, response)
 
-
-
+def usercheckdb(username):
+    if os.path.exists(f"db/{username}.dt")
+       pass
+    else
+       with open('db/{username}.dt', 'w') as f:
+          f.write(f'id={username}_matrixuser')
 def commandprocessor(command):
     if command == "ip":
         response = "На сервер можно зайти с версии 1.11.2 \nip адрес: advancedsoft.mooo.com"
