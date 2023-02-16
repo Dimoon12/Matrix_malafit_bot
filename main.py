@@ -26,13 +26,17 @@ phraseshardworkdone = ["На, наслаждайся", "Вот, не подав�
 # Stable settings
 youtubedownload=True
 # Beta and alpha settings
-beta_mp4download=False
-beta_fallbackhttp=True
+beta_recognitionhttp=True
 alpha_enablefallbackwarning=False
 #Additional settings
 httpfbport="5000"
 httpfbhost="localhost"
 
+
+
+#Отправка админам об ошибках
+async def sendfault(fault):
+    await bot.api.send_text_message("!GhhKvYgrxKgvoPoSgq:anontier.nl", fault)
 
 @bot.listener.on_message_event
 async def echo(room, message):
@@ -62,25 +66,22 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, f"Название: **{video.title}**")
         except:
             await bot.api.send_markdown_message(room.room_id, f"Я не могу скачать видео. У тебя дерьмовая ссылка <a href='https://matrix.to/#/{username}:{server}'>{username}</a> !")
+            loop = asyncio.get_running_loop()
+            loop.create_task(sendfault("[YouTube] Не смог скачать по ссылке, битая или недоступна и тп"))
 
-    #Временно, надо на async
-    if message.endswith(".mp4") and message.startswith("https") and beta_mp4download==True:
-        try:
-            print("Beta download mp4")
-            data=requests.get(message)
-            open('download.mp4', 'wb').write(data.content)
-            data=0
-            await bot.api.send_video_message(room.room_id, "download.mp4")
-        except:
-            await bot.api.send_markdown_message(room.room_id, f"Ошибка скачивания (betamode)")
+
 
 #beta_fallback
-    if beta_fallbackhttp == True and match.is_not_from_this_bot():
-       fallback_actions(message)
-       if alpha_enablefallbackwarning:
-           await bot.api.send_markdown_message(room.room_id, f"(FALLBACK) {message}")
+    if beta_recognitionhttp and match.is_not_from_this_bot():
+       response = fallback_actions(message)
+       if not response == None:
+           if alpha_enablefallbackwarning:
+               await bot.api.send_markdown_message(room.room_id, f"(RECOGNITION) {response}")
+           else:
+               await bot.api.send_markdown_message(room.room_id, response)
        else:
-           await bot.api.send_markdown_message(room.room_id, message)
+           loop = asyncio.get_running_loop()
+           loop.create_task(sendfault("[Адаптер http] Получил пустое сообщение, игнорирую"))
 
 
 ## команды
@@ -97,12 +98,12 @@ async def echo(room, message):
 
 def commandprocessor(command):
     #if command == "chat":
-       # if beta_fallbackhttp == True:
+       # if beta_recognitionhttp == True:
        #     response = "Модуль выключен"
-       #     beta_fallbackhttp = False
+       #     beta_recognitionhttp = False
        # else:
        #     response = "Модуль включен! (БЕТА)"
-       #     beta_fallbackhttp = True
+       #     beta_recognitionhttp = True
     if command == "ip":
         response = "На сервер можно зайти с версии 1.11.2 \nip адрес: advancedsoft.mooo.com"
     elif command == "map":
@@ -111,14 +112,28 @@ def commandprocessor(command):
         response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n **!room** - Основная комната"
     else:
         response='None'
+        loop = asyncio.get_running_loop()
+        loop.create_task(sendfault("[Команда] Ошибка при исполнении команды, команда есть в списке но нет вывода"))
     return response
 
+
+
 def fallback_actions(message):
-    if not beta_fallbackhttp:
-       print("Unknown error (debug)")
+    if not beta_recognitionhttp:
+       pass
     else:
         print("Fallback http Executed (debug)")
         response=requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer', params={'text': message, 'reply_text': 'no_reply'})
-        print(f'debug  {response.text}')
-        return(response.text)
+        try:
+           response2=response.text
+        except:
+            response2 = "None"
+            loop = asyncio.get_running_loop()
+            loop.create_task(sendfault(f"[Адаптер http] Получены данные из которых нельзя получить текст json: {response.json} statuscode: {response.status_code} "))
+        if "err" in response2:
+            loop = asyncio.get_running_loop()
+            loop.create_task(sendfault(
+                f"[Адаптер http] Ошибка сервера {response2}"))
+            response2 = None
+        return(response2)
 bot.run()
