@@ -19,7 +19,7 @@ creds = botlib.Creds("https://matrix.org", f"{login}", f"{password}")
 
 bot = botlib.Bot(creds, config)
 PREFIX = '!'
-commands = ["ip", "map", "fdi", "help", "room"]
+commands = ["ip", "map", "help", "room"]
 phrasesworkingonit = ["Ненавижу свою ебаную работу, ща погоди", "Ща сделаю, сек", "Ааа бля ща ща сделаю", "Делаю уже, погоди", "Погоди, ща все сделаем, только поем оперативки"]
 phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
 
@@ -73,10 +73,11 @@ async def echo(room, message):
         except:
             await bot.api.send_markdown_message(room.room_id, f"Ошибка скачивания (betamode)")
 
+#beta_fallback
+    if beta_fallbackhttp:
+       fallback_actions(message)
 
 ## команды
-
-
     if match.is_not_from_this_bot() and match.prefix():
         for i in commands:
             if match.command(i):
@@ -93,22 +94,17 @@ def commandprocessor(command):
         response = "На сервер можно зайти с версии 1.11.2 \nip адрес: advancedsoft.mooo.com"
     elif command == "map":
         response = "[Карта](http://advancedsoft.mooo.com:25552)"
-    elif command == "fdi" and beta_checkfreedomnetwork==True:
-        response = "Микротест компонентов сервера в разработке"
-        # 1 - проверить вебкарту ассинхронно, понять что основной серв работает
-        # 2 - либой проверить что работает защитный прокси
     elif command == "help":
         response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n **!room** - Основная комната"
     else:
-        response = fallback_actions()
+        response='None'
     return response
 
-def fallback_actions():
+def fallback_actions(message):
     if not beta_fallbackhttp:
-       await bot.api.send_markdown_message(room.room_id, "странная ошибка, почините меня пжлста")
        print("Unknown error (debug)")
     else:
         print("Fallback http Executed (debug)")
-        return(requests.post(f'http://{httpfbport}:{httpfbport}/get_answer', params={'text': text, 'reply_text': reply_text}))
+        return(requests.get(f'http://{httpfbport}:{httpfbport}/get_answer', params={'text': message, 'reply_text': 'no_reply'}))
 
 bot.run()
