@@ -26,9 +26,12 @@ phraseshardworkdone = ["На, наслаждайся", "Вот, не подав�
 # Stable settings
 youtubedownload=True
 # Beta and alpha settings
-beta_mp4download=True
-beta_checkfreedomnetwork=True
-beta_fallbackferrum=True
+beta_mp4download=False
+beta_fallbackhttp=False
+#Additional
+httpfbport="1111"
+httpfbhost="localhost"
+
 
 @bot.listener.on_message_event
 async def echo(room, message):
@@ -71,21 +74,20 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, f"Ошибка скачивания (betamode)")
 
 
+## команды
+
+
     if match.is_not_from_this_bot() and match.prefix():
         for i in commands:
             if match.command(i):
                 response = commandprocessor(i)
                 if response == None:
-                    await bot.api.send_markdown_message(room.room_id, "странная ошибка, почините меня пжлста")
+                    pass
                 else:
                     await bot.api.send_markdown_message(room.room_id, response)
 
-def usercheckdb(username):
-    if os.path.exists(f"db/{username}.dt")
-       pass
-    else
-       with open('db/{username}.dt', 'w') as f:
-          f.write(f'id={username}_matrixuser')
+
+
 def commandprocessor(command):
     if command == "ip":
         response = "На сервер можно зайти с версии 1.11.2 \nip адрес: advancedsoft.mooo.com"
@@ -98,7 +100,16 @@ def commandprocessor(command):
     elif command == "help":
         response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n **!room** - Основная комната"
     else:
-        response = "None"  #шта?
+        fallback_actions()
+        response = "None"
     return response
+
+def fallback_actions():
+    if not beta_fallbackhttp:
+       await bot.api.send_markdown_message(room.room_id, "странная ошибка, почините меня пжлста")
+       print("Unknown error (debug)")
+    else:
+        requests.get(f'{httpfbhost}:{httpfbport}/{message}')
+        print("FallbackhttpExecuted (debug)")
 
 bot.run()
