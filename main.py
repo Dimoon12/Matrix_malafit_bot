@@ -7,7 +7,7 @@ import os
 from pytube import YouTube
 import simplematrixbotlib as botlib
 
-## шифровальное говно, не трогать
+##не трогать
 config = botlib.Config()
 config.encryption_enabled = True
 config.emoji_verify = False
@@ -28,7 +28,7 @@ youtubedownload=True
 # Beta and alpha settings
 beta_mp4download=False
 beta_fallbackhttp=True
-#Additional
+#Additional settings
 httpfbport="5000"
 httpfbhost="localhost"
 
