@@ -27,9 +27,9 @@ phraseshardworkdone = ["На, наслаждайся", "Вот, не подав�
 youtubedownload=True
 # Beta and alpha settings
 beta_mp4download=False
-beta_fallbackhttp=False
+beta_fallbackhttp=True
 #Additional
-httpfbport="1111"
+httpfbport="5000"
 httpfbhost="localhost"
 
 
@@ -100,8 +100,7 @@ def commandprocessor(command):
     elif command == "help":
         response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n **!room** - Основная комната"
     else:
-        fallback_actions()
-        response = "None"
+        response = fallback_actions()
     return response
 
 def fallback_actions():
@@ -109,7 +108,7 @@ def fallback_actions():
        await bot.api.send_markdown_message(room.room_id, "странная ошибка, почините меня пжлста")
        print("Unknown error (debug)")
     else:
-        requests.get(f'{httpfbhost}:{httpfbport}/{message}')
-        print("FallbackhttpExecuted (debug)")
+        print("Fallback http Executed (debug)")
+        return(requests.post(f'http://{httpfbport}:{httpfbport}/get_answer', params={'text': text, 'reply_text': reply_text}))
 
 bot.run()
