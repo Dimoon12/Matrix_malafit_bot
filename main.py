@@ -170,7 +170,6 @@ def fallback_actions(message):
     if not beta_recognitionhttp:
         pass
     else:
-        print("Fallback http Executed (debug)")
         response = requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
                                 params={'text': message, 'reply_text': 'no_reply', 'space': 'matrix'})
         try:
