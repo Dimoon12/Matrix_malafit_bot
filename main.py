@@ -25,7 +25,7 @@ bot = botlib.Bot(creds, config)
 
 # Long Settings
 PREFIX = '!'
-commands = ["ip", "map", "help", "room", "learnsw", "aisw"]
+commands = ["ip", "map", "help", "learnsw", "aisw"]
 phrasesworkingonit = ["Ненавижу свою ебаную работу, ща погоди", "Ща сделаю, сек", "Ааа бля ща ща сделаю",
                       "Делаю уже, погоди", "Погоди, ща все сделаем, только поем оперативки"]
 phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
@@ -79,7 +79,7 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id,
                                                 f"Я не могу скачать видео. У тебя дерьмовая ссылка <a href='https://matrix.to/#/{username}:{server}'>{username}</a> !")
             loop = asyncio.get_running_loop()
-            loop.create_task(sendfault("**[Ошибка] [YouTube]** Не смог скачать по ссылке, битая или недоступна и тп"))
+            loop.create_task(sendfault("**[ERR] [YouTube]** Не смог скачать по ссылке, битая или недоступна и тп"))
 
     ## команды
     if match.is_not_from_this_bot() and match.prefix():
@@ -111,13 +111,13 @@ def commandprocessor(command, username):
                 response = "Чат режим выключен"
                 loop = asyncio.get_running_loop()
                 loop.create_task(sendfault(
-                    f"*[Предупреждение] [Параметры]* Чат режим глобально выключен {username}"))
+                    f"*[Caution] [Параметры]* Чат режим глобально выключен {username}"))
             else:
                 beta_recognitionhttp = True
                 response = "Чат режим включен"
                 loop = asyncio.get_running_loop()
                 loop.create_task(sendfault(
-                    f"*[Предупреждение] [Параметры]* Чат режим глобально выключен {username}"))
+                    f"*[Caution] [Параметры]* Чат режим глобально выключен {username}"))
         else:
             response = "Недостаточный уровень привелегий"
             print(response)
@@ -129,13 +129,13 @@ def commandprocessor(command, username):
                 response = "Обучение выключено"
                 loop = asyncio.get_running_loop()
                 loop.create_task(sendfault(
-                    f"*[Предупреждение] [Параметры]* Обучение глобально выключено {username}"))
+                    f"*[Caution] [Параметры]* Обучение глобально выключено {username}"))
             else:
                 statelearn = True
                 response = "Обучение включено"
                 loop = asyncio.get_running_loop()
                 loop.create_task(sendfault(
-                    f"*[Предупреждение] [Параметры]* Обучение глобально включено {username}"))
+                    f"*[Caution] [Параметры]* Обучение глобально включено {username}"))
         else:
             response = "Недостаточный уровень привелегий"
     elif command == "ip":
@@ -143,12 +143,12 @@ def commandprocessor(command, username):
     elif command == "map":
         response = "[Карта](http://advancedsoft.mooo.com:25552)"
     elif command == "help":
-        response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n **!room** - Основная комната\n**!aisw** - Переключить диалоговый режим бота \n**!learnsw** - Переключить режим обучения"
+        response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n**!aisw** - Переключить диалоговый режим бота \n**!learnsw** - Переключить режим обучения"
     else:
         response = 'None'
         loop = asyncio.get_running_loop()
         loop.create_task(
-            sendfault("**[Ошибка] [Команда]** Ошибка при исполнении команды, команда есть в списке но нет вывода"))
+            sendfault("**[ERR] [Команда]** Ошибка при исполнении команды, команда есть в списке но нет вывода"))
     return response
 
 
@@ -178,11 +178,11 @@ def fallback_actions(message):
             response2 = "None"
             loop = asyncio.get_running_loop()
             loop.create_task(sendfault(
-                f"**[Ошибка] [Адаптер http]** Получены данные из которых нельзя получить текст json: {response.json} "))
-        if "err" in response2:
+                f"**[ОRR] [Адаптер http]** Получены данные из которых нельзя получить текст json: {response.json} "))
+        if "err" in response2 or "wrn" in response2:
             loop = asyncio.get_running_loop()
             loop.create_task(sendfault(
-                f"**[Ошибка][Адаптер http]** {response2}"))
+                f"**[ERR/WRN][Адаптер http]** {response2}"))
             response2 = None
             splited = message.split(">")
         if len(splited) > 1:
@@ -191,7 +191,7 @@ def fallback_actions(message):
             question = splited[1].lower().strip()
             loop = asyncio.get_running_loop()
             loop.create_task(sendfault(
-                f"*[Дебаг] [http обучение]* Ответ: {question} Вопрос: {answer}  Разрешена отправка: {statelearn}"))
+                f"*[DBG] [http обучение]* Ответ: {question} Вопрос: {answer}  Разрешена отправка: {statelearn}"))
             if statelearn:
                 requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
                              params={'text': question, 'reply_text': answer, 'space': 'matrix'})
