@@ -9,12 +9,12 @@ import simplematrixbotlib as botlib
 # не трогать
 config = botlib.Config()
 config.encryption_enabled = True
-config.emoji_verify = False
+config.emoji_verify = True
 config.ignore_unverified_devices = True
 
 with open("cred.txt", "r") as f:
     login, password = f.read().split(":")
-creds = botlib.Creds("https://matrix.org", f"{login}", f"{password}")
+creds = botlib.Creds("https://cuteworld.space", f"{login}", f"{password}")
 
 with open("admins.txt", "r") as f:
     adminnicks = f.read()
@@ -41,7 +41,7 @@ httpfbhost = "localhost"
 
 # Отправка админам об ошибках
 async def sendfault(fault):
-    await bot.api.send_markdown_message("!GhhKvYgrxKgvoPoSgq:anontier.nl", fault)
+    await bot.api.send_markdown_message("!rIdzntOJyjfoCpBCYS:cuteworld.space", fault)
 
 
 @bot.listener.on_message_event
@@ -187,11 +187,11 @@ def fallback_actions(message):
             splited = message.split(">")
         if len(splited) > 1:
             splited = splited[2].split("\n\n")
-            answer = splited[0].lower().strip()
-            question = splited[1].lower().strip()
+            question = splited[0].lower().strip()
+            answer = splited[1].lower().strip()
             loop = asyncio.get_running_loop()
             loop.create_task(sendfault(
-                f"*[DBG] [http обучение]* Ответ: {question} Вопрос: {answer}  Разрешена отправка: {statelearn}"))
+                f"*[DBG] [http обучение]* Ответ: {answer} Вопрос: {question}  Разрешение: {statelearn}"))
             if statelearn:
                 requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
                              params={'text': question, 'reply_text': answer, 'space': 'matrix'})
