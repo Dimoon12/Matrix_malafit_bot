@@ -31,10 +31,11 @@ phrasesworkingonit = ["Ненавижу свою ебаную работу, ща
 phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
 # Stable settings
 youtubedownload = True
+statelearn = True
 # Beta and alpha settings
 beta_recognitionhttp = True
-statelearn = True
-# Additional settings
+
+# Http server for recognition parameters
 httpfbport = "5000"
 httpfbhost = "localhost"
 
@@ -145,7 +146,7 @@ def commandprocessor(command, username):
     elif command == "help":
         response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n**!aisw** - Переключить диалоговый режим бота \n**!learnsw** - Переключить режим обучения"
     else:
-        response = 'None'
+        response = None
         loop = asyncio.get_running_loop()
         loop.create_task(
             sendfault("**[ERR] [Команда]** Ошибка при исполнении команды, команда есть в списке но нет вывода"))
@@ -164,40 +165,33 @@ def checkpermissions(user, required):
         return True
 
 
-def fallback_actions(message):
-    global splited
+def preparemessage(message):
     splited = []
-    if not beta_recognitionhttp:
-        pass
-    else:
-        response = requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
-                                params={'text': message, 'reply_text': 'no_reply', 'space': 'matrix'})
-        try:
-            response2 = response.text.lower().strip()
-        except:
-            response2 = "None"
-            loop = asyncio.get_running_loop()
-            loop.create_task(sendfault(
-                f"**[ОRR] [Адаптер http]** Получены данные из которых нельзя получить текст json: {response.json} "))
-        if "err" in response2 or "wrn" in response2:
-            loop = asyncio.get_running_loop()
-            loop.create_task(sendfault(
-                f"**[ERR/WRN][Адаптер http]** {response2}"))
-            response2 = None
-            splited = message.split(">")
-        if len(splited) > 1:
-            splited = splited[2].split("\n\n")
-            question = splited[0].lower().strip()
-            answer = splited[1].lower().strip()
-            loop = asyncio.get_running_loop()
-            loop.create_task(sendfault(
-                f"*[DBG] [http обучение]* Ответ: {answer} Вопрос: {question}  Разрешение: {statelearn}"))
-            if statelearn:
-                requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
-                             params={'text': question, 'reply_text': answer, 'space': 'matrix'})
-                return None
-        else:
-            return(response2)
+    answer="no_reply"
+    question=message
+    splited = message.split(">")
+    if len(splited) > 1:
+        splited = splited[2].split("\n\n")
+        question = splited[0].lower().strip()
+        answer = splited[1].lower().strip()
+        loop = asyncio.get_running_loop()
+        loop.create_task(sendfault(
+            f"*[DBG] [http обучение]* Ответ: {answer} Вопрос: {question}  Разрешение: {statelearn}"))
+
+    response=requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
+                 params={'text': question, 'reply_text': answer, 'space': 'matrix'})
+    response=response.text.lower().strip()
+    if "err" in response or "wrn" in response:
+        loop = asyncio.get_running_loop()
+        loop.create_task(sendfault(
+            f"**[ERR/WRN][Адаптер http]** {response}"))
+        response=None
+    return(response)
+
+
+def fallback_actions(message):
+     return(preparemessage(message))
+
 
 
 bot.run()
