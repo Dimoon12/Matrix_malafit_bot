@@ -80,7 +80,7 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id,
                                                 f"Я не могу скачать видео. У тебя дерьмовая ссылка <a href='https://matrix.to/#/{username}:{server}'>{username}</a> !")
             loop = asyncio.get_running_loop()
-            loop.create_task(sendfault("**[ERR] [YouTube]** Не смог скачать по ссылке, битая или недоступна и тп"))
+            loop.create_task(sendfault("**[ERR] [YouTube]** Не смог скачать по ссылке, битая или видео недоступно без акка и тп"))
 
     ## команды
     if match.is_not_from_this_bot() and match.prefix():
@@ -146,7 +146,7 @@ def commandprocessor(command, username):
     elif command == "help":
         response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n**!aisw** - Переключить диалоговый режим бота \n**!learnsw** - Переключить режим обучения"
     else:
-        response = 'None'
+        response = None
         loop = asyncio.get_running_loop()
         loop.create_task(
             sendfault("**[ERR] [Команда]** Ошибка при исполнении команды, команда есть в списке но нет вывода"))
@@ -185,7 +185,7 @@ def preparemessage(message):
         loop = asyncio.get_running_loop()
         loop.create_task(sendfault(
             f"**[ERR/WRN][Адаптер http]** {response}"))
-        response="None"
+        response=None
     return(response)
 
 
