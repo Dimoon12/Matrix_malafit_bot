@@ -31,10 +31,11 @@ phrasesworkingonit = ["Ненавижу свою ебаную работу, ща
 phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
 # Stable settings
 youtubedownload = True
+statelearn = True
 # Beta and alpha settings
 beta_recognitionhttp = True
-statelearn = True
-# Additional settings
+
+# Http server for recognition parameters
 httpfbport = "5000"
 httpfbhost = "localhost"
 
@@ -184,6 +185,7 @@ def preparemessage(message):
         loop = asyncio.get_running_loop()
         loop.create_task(sendfault(
             f"**[ERR/WRN][Адаптер http]** {response}"))
+        response="None"
     return(response)
 
 
