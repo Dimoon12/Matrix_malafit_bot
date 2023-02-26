@@ -34,12 +34,19 @@ youtubedownload = True
 statelearn = True
 # Beta and alpha settings
 beta_recognitionhttp = True
+prototypeQ = False
 
 # Http server for recognition parameters
 httpfbport = "5000"
 httpfbhost = "localhost"
 
-
+#Загрузка нейрохрени если включено
+if prototypeQ==True:
+    from deeppavlov import build_model
+    m=build_model('squad_ru_bert', download=True)
+    data=open("data.txt", mode="r")
+    data=data.read()
+    data=[data]
 # Отправка админам об ошибках
 async def sendfault(fault):
     await bot.api.send_markdown_message("!rIdzntOJyjfoCpBCYS:cuteworld.space", fault)
@@ -87,7 +94,7 @@ async def echo(room, message):
         commandexecuted = True
         for i in commands:
             if match.command(i):
-                response = commandprocessor(i, username)
+                response = commandprocessor(i, username,message)
                 if response == None:
                     pass
                 else:
@@ -101,7 +108,7 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, response)
 
 
-def commandprocessor(command, username):
+def commandprocessor(command, username,message):
     global statelearn
     global response
     global beta_recognitionhttp
@@ -122,6 +129,13 @@ def commandprocessor(command, username):
         else:
             response = "Недостаточный уровень привелегий"
             print(response)
+
+    elif command == "prot":
+        if prototypeQ:
+            response=m(data, message)
+            loop = asyncio.get_running_loop()
+            loop.create_task(sendfault(
+                f"*[PROTO]* response:{response} {message}"))
 
     elif command == "learnsw":
         if checkpermissions(username, 2):
