@@ -139,7 +139,7 @@ def commandprocessor(command, username, message):
             print(response)
 
     elif command == "ddo":
-        if checkpermissions(username, 2):
+        if checkpermissions(username, 1):
             try:
                 headers = {'Content-type': 'application/json'}
                 r = requests.post("http://log.rosdomofon.com:12202", data=json.dumps(domofonheaders), headers=headers, timeout=5)
