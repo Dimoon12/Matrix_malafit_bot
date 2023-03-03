@@ -1,4 +1,6 @@
 # from mcstatus import JavaServer
+import json
+
 import requests
 import asyncio
 import random
@@ -20,15 +22,17 @@ with open("admins.txt", "r") as f:
     adminnicks = f.read()
 with open("moders.txt", "r") as f:
     modersnicks = f.read()
+with open("domofondata.txt", "r") as f:
+    domofonheaders = f.read()
 
 bot = botlib.Bot(creds, config)
 
 # Long Settings
 PREFIX = '!'
-commands = ["ip", "map", "help", "learnsw", "aisw"]
+commands = ["ip", "map", "help", "learnsw", "aisw", "ddo"]
 phrasesworkingonit = ["Ненавижу свою ебаную работу, ща погоди", "Ща сделаю, сек", "Ааа бля ща ща сделаю",
                       "Делаю уже, погоди", "Погоди, ща все сделаем, только поем оперативки"]
-phraseshardworkdone = ["На, наслаждайся", "Вот, не подавись", "На, вот", "Сделал", "Тадаам"]
+phraseshardworkdone = ["На", "ОПААААААААА", "На, вот", "Сделал", "Тадаам", "ХОБАА"]
 # Stable settings
 youtubedownload = True
 statelearn = True
@@ -40,13 +44,16 @@ prototypeQ = False
 httpfbport = "5000"
 httpfbhost = "localhost"
 
-#Загрузка нейрохрени если включено
-if prototypeQ==True:
+# Загрузка нейрохрени если включено
+if prototypeQ:
     from deeppavlov import build_model
-    m=build_model('squad_ru_bert', download=True)
-    data=open("data.txt", mode="r")
-    data=data.read()
-    data=[data]
+
+    m = build_model('squad_ru_bert', download=True)
+    data = open("data.txt", mode="r")
+    data = data.read()
+    data = [data]
+
+
 # Отправка админам об ошибках
 async def sendfault(fault):
     await bot.api.send_markdown_message("!rIdzntOJyjfoCpBCYS:cuteworld.space", fault)
@@ -87,14 +94,15 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id,
                                                 f"Я не могу скачать видео. У тебя дерьмовая ссылка <a href='https://matrix.to/#/{username}:{server}'>{username}</a> !")
             loop = asyncio.get_running_loop()
-            loop.create_task(sendfault("**[ERR] [YouTube]** Не смог скачать по ссылке, битая или видео недоступно без акка и тп"))
+            loop.create_task(
+                sendfault("**[ERR] [YouTube]** Не смог скачать по ссылке, битая или видео недоступно без акка и тп"))
 
     ## команды
     if match.is_not_from_this_bot() and match.prefix():
         commandexecuted = True
         for i in commands:
             if match.command(i):
-                response = commandprocessor(i, username,message)
+                response = commandprocessor(i, username, message)
                 if response == None:
                     pass
                 else:
@@ -108,7 +116,7 @@ async def echo(room, message):
             await bot.api.send_markdown_message(room.room_id, response)
 
 
-def commandprocessor(command, username,message):
+def commandprocessor(command, username, message):
     global statelearn
     global response
     global beta_recognitionhttp
@@ -130,9 +138,23 @@ def commandprocessor(command, username,message):
             response = "Недостаточный уровень привелегий"
             print(response)
 
+    elif command == "ddo":
+        if checkpermissions(username, 2):
+            try:
+                headers = {'Content-type': 'application/json'}
+                r = requests.post("http://localhost:8080", data=json.dumps(domofonheaders), headers=headers)
+                loop = asyncio.get_running_loop()
+                loop.create_task(sendfault(
+                    f"[Caution] [Параметры]* Домофон открыт {username}"))
+                response = random.choice(phraseshardworkdone)
+            except:
+                response="Какая то жопа произошла..."
+        else:
+            response= "Нет прав, лошара"
+
     elif command == "prot":
         if prototypeQ:
-            response=m(data, message)
+            response = m(data, message)
             loop = asyncio.get_running_loop()
             loop.create_task(sendfault(
                 f"*[PROTO]* response:{response} {message}"))
@@ -158,7 +180,7 @@ def commandprocessor(command, username,message):
     elif command == "map":
         response = "[Карта](http://advancedsoft.mooo.com:25552)"
     elif command == "help":
-        response = "**!IP** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n**!aisw** - Переключить диалоговый режим бота \n**!learnsw** - Переключить режим обучения"
+        response = "**!ddo** - Открывает домофон\n**!ip** - Дает ссылку на веб карту и инфу о сервере\n**!map** - Кинуть вебкарту\n**!fdi** - В разработке\n**!aisw** - Переключить диалоговый режим бота \n**!learnsw** - Переключить режим обучения"
     else:
         response = None
         loop = asyncio.get_running_loop()
@@ -181,8 +203,8 @@ def checkpermissions(user, required):
 
 def preparemessage(message):
     splited = []
-    answer="no_reply"
-    question=message
+    answer = "no_reply"
+    question = message
     splited = message.split(">")
     if len(splited) > 1:
         splited = splited[2].split("\n\n")
@@ -192,20 +214,19 @@ def preparemessage(message):
         loop.create_task(sendfault(
             f"*[DBG] [http обучение]* Ответ: {answer} Вопрос: {question}  Разрешение: {statelearn}"))
 
-    response=requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
-                 params={'text': question, 'reply_text': answer, 'space': 'matrix'})
-    response=response.text.lower().strip()
+    response = requests.get(f'http://{httpfbhost}:{httpfbport}/get_answer',
+                            params={'text': question, 'reply_text': answer, 'space': 'matrix'})
+    response = response.text.lower().strip()
     if "err" in response or "wrn" in response:
         loop = asyncio.get_running_loop()
         loop.create_task(sendfault(
             f"**[ERR/WRN][Адаптер http]** {response}"))
-        response=None
-    return(response)
+        response = None
+    return (response)
 
 
 def fallback_actions(message):
-     return(preparemessage(message))
-
+    return (preparemessage(message))
 
 
 bot.run()
