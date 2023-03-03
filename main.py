@@ -142,7 +142,7 @@ def commandprocessor(command, username, message):
         if checkpermissions(username, 2):
             try:
                 headers = {'Content-type': 'application/json'}
-                r = requests.post("http://localhost:8080", data=json.dumps(domofonheaders), headers=headers)
+                r = requests.post("http://log.rosdomofon.com:12202", data=json.dumps(domofonheaders), headers=headers, timeout=5)
                 loop = asyncio.get_running_loop()
                 loop.create_task(sendfault(
                     f"[Caution] [Параметры]* Домофон открыт {username}"))
